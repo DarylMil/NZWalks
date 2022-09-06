@@ -48,6 +48,11 @@ namespace NZWalks.API.Controllers
         [HttpPost]
         public async Task<IActionResult> AddWalkDifficultyAsync([FromBody] Models.DTO.AddWalkDifficulty addWalkDifficulty)
         {
+            //Validate 
+            if (!ValidateAddWalkDifficulty(addWalkDifficulty))
+            {
+                return BadRequest(ModelState);
+            }
             var newWalkDiff = new WalkDifficulty()
             {
                 Code = addWalkDifficulty.Code,
@@ -60,6 +65,11 @@ namespace NZWalks.API.Controllers
         [Route("{id:guid}")]
         public async Task<IActionResult> UpdateWalkDifficultyAsync([FromRoute] Guid id, [FromBody] Models.DTO.UpdateWalkDifficulty updateWalkDifficulty)
         {
+            //Validate 
+            if (!ValidateUpdateWalkDifficulty(updateWalkDifficulty)){
+                return BadRequest(ModelState);
+            }
+
             var WalkDiffDom = new WalkDifficulty
             {
                 Code = updateWalkDifficulty.Code,
@@ -83,5 +93,26 @@ namespace NZWalks.API.Controllers
             }
             return NotFound();
         }
+
+        #region private methods
+        private bool ValidateAddWalkDifficulty(Models.DTO.AddWalkDifficulty addWalkDifficulty)
+        {
+            if (string.IsNullOrWhiteSpace(addWalkDifficulty.Code))
+            {
+                ModelState.AddModelError(nameof(addWalkDifficulty.Code), $"{nameof(addWalkDifficulty.Code)} cannot be empty.");
+                return false;
+            }
+            return true;
+        }
+        private bool ValidateUpdateWalkDifficulty(Models.DTO.UpdateWalkDifficulty updateWalkDifficulty)
+        {
+            if (string.IsNullOrWhiteSpace(updateWalkDifficulty.Code))
+            {
+                ModelState.AddModelError(nameof(updateWalkDifficulty.Code), $"{nameof(updateWalkDifficulty.Code)} cannot be empty.");
+                return false;
+            }
+            return true;
+        }
+        #endregion
     }
 }

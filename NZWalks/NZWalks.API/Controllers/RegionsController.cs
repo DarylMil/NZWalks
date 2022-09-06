@@ -62,6 +62,12 @@ namespace NZWalks.API.Controllers
         [HttpPost]
         public async Task<IActionResult> AddRegionAsync([FromBody] Models.DTO.AddRegionRequest newRegion)
         {
+            //Validate the Request
+            if (!ValidateAddRegionAsync(newRegion))
+            {
+                return BadRequest(ModelState);
+            }
+
             //Request to Domain Model
             var region = new Region()
             {
@@ -124,6 +130,11 @@ namespace NZWalks.API.Controllers
         [Route("{id:guid}")]
         public async Task<IActionResult> UpdateRegionAsync([FromRoute] Guid id, [FromBody] Models.DTO.UpdateRegionRequest updateRegionRequest)
         {
+            // Validate
+            if (!ValidateUpdateRegionAsync(updateRegionRequest))
+            {
+                return BadRequest(ModelState);
+            }
             // Convert DTO to Domain
             var newRegion = new Region()
             {
@@ -147,5 +158,50 @@ namespace NZWalks.API.Controllers
             // ok response
             return Ok(RegionDTO);
         }
+
+        #region Private Methods
+        private bool ValidateAddRegionAsync(Models.DTO.AddRegionRequest newRegion)
+        {
+            if(newRegion == null)
+            {
+                ModelState.AddModelError(nameof(newRegion), "Add Region Data is required.");
+                return false;
+            }
+            if (string.IsNullOrWhiteSpace(newRegion.Code) || string.IsNullOrWhiteSpace(newRegion.Name))
+            {
+                ModelState.AddModelError(nameof(newRegion.Code), $"{nameof(newRegion.Code)} cannot be null or empty or white space.");
+            }
+            if (newRegion.Population <= 0 || newRegion.Area <= 0)
+            {
+                ModelState.AddModelError("PA", $"{nameof(newRegion.Name)} cannot be null or empty or white space."); 
+            }
+            if(ModelState.ErrorCount > 0)
+            {
+                return false;
+            }
+            return true;
+        }
+        private bool ValidateUpdateRegionAsync(Models.DTO.UpdateRegionRequest updateRegion)
+        {
+            if (updateRegion == null)
+            {
+                ModelState.AddModelError(nameof(updateRegion), "Add Region Data is required.");
+                return false;
+            }
+            if (string.IsNullOrWhiteSpace(updateRegion.Code) || string.IsNullOrWhiteSpace(updateRegion.Name))
+            {
+                ModelState.AddModelError(nameof(updateRegion.Code), $"{nameof(updateRegion.Code)} cannot be null or empty or white space.");
+            }
+            if (updateRegion.Population <= 0 || updateRegion.Area <= 0)
+            {
+                ModelState.AddModelError("PA", $"{nameof(updateRegion.Name)} cannot be null or empty or white space.");
+            }
+            if (ModelState.ErrorCount > 0)
+            {
+                return false;
+            }
+            return true;
+        }
+        #endregion
     }
 }
